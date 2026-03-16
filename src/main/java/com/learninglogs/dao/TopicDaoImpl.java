@@ -96,10 +96,10 @@ public class TopicDaoImpl implements TopicDao {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 Topic topic = new Topic(
-                    rs.getInt("id"),
-                    rs.getString("name"),
-                    rs.getTimestamp("created_at"),
-                    rs.getTimestamp("updated_at")
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getTimestamp("created_at"),
+                        rs.getTimestamp("updated_at")
                 );
                 topics.add(topic);
             }
@@ -155,6 +155,26 @@ public class TopicDaoImpl implements TopicDao {
     @Override
     public Topic findTopicByName(String name) {
         // Write your code here
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            String sql="SELECT * FROM topics WHERE LOWER(name) = LOWER(?)";
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setString(1, name);
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) {
+                return new Topic(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getTimestamp("created_at"),
+                        rs.getTimestamp("updated_at")
+                );
+            }
+        } catch (SQLException e) {
+            System.out.println("Error finding topic: " + e.getMessage());
+        } finally {
+            DatabaseConnection.closeConnection(conn);
+        }
         return null;
     }
 }
